@@ -24,10 +24,11 @@
 
   programs.git = {
     enable = true;
-    userName = "kevbeezy";
-    userEmail = "kevbeezy3@gmail.com";
-
-    extraConfig = {
+    settings = {
+      user = {
+        name = "kevbeezy";
+        email = "kevbeezy3@gmail.com";
+      };
       init.defaultBranch = "main";
       pull.rebase = true;
     };
@@ -35,5 +36,19 @@
 
   programs.lazygit = {
       enable = true;
+
+      settings = {
+        gui = {
+            theme = {
+                activeBorderColor = [
+                "blue"
+                "bold"
+                ];
+                inactiveBorderColor = [
+                "black"
+                ];
+      };
+     };
+    };
   };
 }
