@@ -162,6 +162,7 @@
     kdePackages.yakuake
     vesktop
     neovide
+    pear-desktop
     inputs.kwin-blur.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
