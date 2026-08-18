@@ -32,4 +32,8 @@
       pull.rebase = true;
     };
   };
+
+  programs.lazygit = {
+      enable = true;
+  };
 }
