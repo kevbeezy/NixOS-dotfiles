@@ -15,12 +15,16 @@
   ];
 
   home.stateVersion = "24.05";
-  
+
   # This creates a direct symlink to your local folder, bypassing the read-only Nix store
-  home.file.".vim".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/vim/.vim";
-  home.file.".vimrc".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/vim/.vimrc";
-  home.file.".gvimrc".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/vim/.gvimrc";
-  home.file.".config/nvim/init.vim".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/vim/init.vim";
+  home.file.".vim".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/vim/.vim";
+  home.file.".vimrc".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/vim/.vimrc";
+  home.file.".gvimrc".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/vim/.gvimrc";
+  home.file.".config/nvim/init.vim".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/vim/init.vim";
 
   programs.git = {
     enable = true;
@@ -35,20 +39,20 @@
   };
 
   programs.lazygit = {
-      enable = true;
+    enable = true;
 
-      settings = {
-        gui = {
-            theme = {
-                activeBorderColor = [
-                "blue"
-                "bold"
-                ];
-                inactiveBorderColor = [
-                "black"
-                ];
+    settings = {
+      gui = {
+        theme = {
+          activeBorderColor = [
+            "blue"
+            "bold"
+          ];
+          inactiveBorderColor = [
+            "black"
+          ];
+        };
       };
-     };
     };
   };
 }

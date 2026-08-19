@@ -2,18 +2,23 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs,  ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    
+
     sharedModules = [ inputs.plasma-manager.homeModules.plasma-manager ];
 
     users.joachim = import ./home.nix;
@@ -33,15 +38,16 @@
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-
   # Enable Plymouth boot splash
   boot.plymouth = {
     enable = true;
-    theme = "breeze"; 
+    theme = "breeze";
   };
 
-
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Silent Boot parameters to hide the text scroll
   boot.consoleLogLevel = 0;
@@ -127,17 +133,19 @@
   users.users."joachim" = {
     isNormalUser = true;
     description = "Joachim";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     shell = pkgs.fish;
     packages = with pkgs; [
       kdePackages.kate
-    #  thunderbird
+      #  thunderbird
     ];
   };
 
   # Install firefox.
   programs.firefox.enable = true;
-
   programs.fish.enable = true;
 
   programs.localsend = {
@@ -150,9 +158,10 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
+
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    #  wget
     fastfetch
     kitty
     stow
@@ -162,7 +171,10 @@
     kdePackages.yakuake
     vesktop
     neovide
+    vscodium
     pear-desktop
+    pkgs.nixfmt
+    pkgs.nixd
     inputs.kwin-blur.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
@@ -171,6 +183,8 @@
     nerd-fonts.iosevka
     nerd-fonts.jetbrains-mono
   ];
+
+  nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -187,10 +201,10 @@
 
   # Open ports in the firewall.
   networking.firewall = {
-   allowedTCPPorts = [ 53317 ];
-   allowedUDPPorts = [ 53317 ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+    allowedTCPPorts = [ 53317 ];
+    allowedUDPPorts = [ 53317 ];
+    # Or disable the firewall altogether.
+    # networking.firewall.enable = false;
   };
 
   # This value determines the NixOS release from which the default
@@ -201,28 +215,27 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "26.05"; # Did you read the comment?
 
-
- programs.neovim = {
+  programs.neovim = {
     enable = true;
     defaultEditor = true;
- }; 
-
- environment.shellAliases = {
-    # System commands
-    nix-update = "sudo nix flake update --flake $HOME/.dotfiles";
-    nix-rebuild = "sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim";
-    nix-upgrade = "sudo nix flake update --flake $HOME/.dotfiles && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim";
-    
-    ls = "ls --color -AFhl";
-    
-    # Editor commands
-    nix-conf = "nvim $HOME/.dotfiles/configuration.nix";
-    nix-flake = "nvim $HOME/.dotfiles/flake.nix";
-    nix-home = "nvim $HOME/.dotfiles/home.nix";
   };
 
- environment.variables = {
+  environment.shellAliases = {
+    # System commands
+    nixupdate = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nix flake update --flake $HOME/.dotfiles";
+    nixrebuild = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim";
+    nixupgrade = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nix flake update --flake $HOME/.dotfiles && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim";
+
+    ls = "ls --color -AFhl";
+
+    # Editor commands
+    nixconf = "nvim $HOME/.dotfiles/configuration.nix";
+    nixflake = "nvim $HOME/.dotfiles/flake.nix";
+    nixhome = "nvim $HOME/.dotfiles/home.nix";
+  };
+
+  environment.variables = {
     TERMINAL = "kitty";
- };
- 
+  };
+
 }
