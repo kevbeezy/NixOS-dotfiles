@@ -1,0 +1,106 @@
+# For More Information - https://starship.rs/
+
+# Don't print a new line at the start of the prompt
+add_newline = false
+# Pipes ╰─ ╭─
+# Powerline symbols                                     
+# Wedges 🭧🭒 🭣🭧🭓
+# Random noise 🬖🬥🬔🬗
+# Cool stuff 󰜥   
+
+# format = """
+# $directory $fill $git_branch $cmd_duration
+#  $character"""
+format = """
+$cmd_duration $directory$git_branch
+  $character"""
+
+[fill]
+symbol = '-'
+style = 'fg:#455E82'
+
+# Replace the "❯" symbol in the prompt with "➜"
+
+[character]                            # The name of the module we are configuring is "character"
+success_symbol = "[ ](bold fg:#00FCB0)"
+error_symbol = "[ ](bold fg:#FF2A55)" 
+
+# Disable the package module, hiding it from the prompt completely
+[package]
+disabled = true
+
+[git_branch]
+style = "bg:#1A2845"
+symbol = "󰘬"
+truncation_length = 12
+truncation_symbol = ""
+format = " 󰜥 [](bold fg:#1A2845)[$symbol $branch(:$remote_branch)](fg:#ECA64A bg:#1A2845)[ ](bold fg:#1A2845)"
+
+[git_commit]
+commit_hash_length = 4
+tag_symbol = " "
+
+[git_state]
+format = '[\($state( $progress_current of $progress_total)\)]($style) '
+cherry_pick = "[🍒 PICKING](bold fg:#FF528A)"
+
+[git_status]
+conflicted = " 🏳 "
+ahead = " 🏎💨 "
+behind = " 😰 "
+diverged = " 😵 "
+untracked = " 🤷 ‍"
+stashed = " 📦 "
+modified = " 📝 "
+staged = '[++\($count\)](fg:#ECA64A)'
+renamed = " ✍️ "
+deleted = " 🗑 "
+
+[hostname]
+ssh_only = false
+format =  "[•$hostname](bg:#455E82 bold fg:#0D111A)[](bold fg:#455E82)"
+trim_at = ".companyname.com"
+disabled = false
+
+[line_break]
+disabled = false
+
+[memory_usage]
+disabled = true
+threshold = -1
+symbol = " "
+style = "bold dimmed fg:#ECA64A"
+
+[time]
+disabled = true
+format = '🕙[\[ $time \]]($style) '
+time_format = "%T"
+
+[username]
+style_user = "bold bg:#455E82 fg:#0D111A"
+style_root = "bold fg:#FF528A"
+format = "[](bold fg:#455E82)[$user]($style)"
+disabled = false
+show_always = true
+
+[directory]
+home_symbol = " "
+read_only = "  "
+style = "bg:#1A2845 fg:#ECA64A"
+truncation_length = 2
+truncation_symbol = ".../"
+format = '[](bold fg:#1A2845)[󰉋 → $path]($style)[](bold fg:#1A2845)'
+
+
+[directory.substitutions]
+"Desktop" = "  "
+"Documents" = "  "
+"Downloads" = "  "
+"Music" = " 󰎈 "
+"Pictures" = "  "
+"Videos" = "  "
+"GitHub" = " 󰊤 "
+
+[cmd_duration]
+min_time = 0
+format = '[](bold fg:#0D111A)[󰪢 $duration](bold bg:#0D111A fg:#FF528A)[](bold fg:#0D111A)'

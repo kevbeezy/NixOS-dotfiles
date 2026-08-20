@@ -1,0 +1,19 @@
+[[mgr.prepend_keymap]]
+on   = [ "g", "p" ]
+run  = "cd ~/projects"
+desc = "Go to ~/projects"
+
+[[mgr.prepend_keymap]]
+on   = [ "g", "l" ]
+run  = "cd ~/localsend"
+desc = "Go to ~/localsend"
+
+[[mgr.prepend_keymap]]
+on   = [ "g", "t" ]
+run  = "cd ~/.local/share/Trash/files"
+desc = "Go to Trash"
+
+[[mgr.prepend_keymap]]
+on   = [ "g", "n" ]
+run  = "cd ~/.dotfiles"
+desc = "Go to nix dotfiles"

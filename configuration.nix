@@ -18,10 +18,10 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-
+    extraSpecialArgs = { inherit inputs; };
     sharedModules = [ inputs.plasma-manager.homeModules.plasma-manager ];
-
     users.joachim = import ./home.nix;
+    backupFileExtension = "backup";
   };
 
   # Bootloader.
@@ -173,6 +173,9 @@
     neovide
     vscodium
     pear-desktop
+    wl-clipboard
+    dos2unix
+    cmake
     pkgs.nixfmt
     pkgs.nixd
     inputs.kwin-blur.packages.${pkgs.stdenv.hostPlatform.system}.default
