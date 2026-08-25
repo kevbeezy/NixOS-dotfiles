@@ -7,11 +7,16 @@
 
 {
   imports = [
-    ./plasma.nix
     inputs.areofyl-fetch.homeManagerModules.default
+    ./plasma.nix
+    ./rclone.nix
+    ./yazi.nix
+    ./starship.nix
+    ./fish.nix
   ];
 
   home.packages = with pkgs; [
+    libreoffice
     vim-full
     clang
     gnumake
@@ -31,10 +36,12 @@
   home.file.".vimrc".source = ./vim/.vimrc;
 
   home.file.".config/fastfetch".source = ./fastfetch;
-  home.file.".config/fish".source = ./fish;
   home.file.".config/kitty".source = ./kitty;
-  home.file.".config/starship.toml".source = ./starship/starship.toml;
-  home.file.".config/yazi".source = ./yazi;
+
+  programs = {
+    rclone.enable = true;
+    mpv.enable = true;
+  };
 
   programs.git = {
     enable = true;
@@ -91,7 +98,7 @@
       };
 
       options = {
-        relativenumber = false;
+        relativenumber = true;
         number = true;
       };
 

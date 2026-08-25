@@ -229,7 +229,7 @@
     nixrebuild = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim";
     nixupgrade = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nix flake update --flake $HOME/.dotfiles && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim";
 
-    ls = "ls --color -AFhl";
+    ls = "ls --color -AFhl $argv";
 
     # Editor commands
     nixconf = "nvim $HOME/.dotfiles/configuration.nix";
