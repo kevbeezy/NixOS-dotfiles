@@ -75,6 +75,8 @@
   # Set your time zone.
   time.timeZone = "America/Phoenix";
 
+  hardware.bluetooth.enable = true;
+
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
 
@@ -109,6 +111,16 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
+
+  # Add HP drivers
+  services.printing.drivers = [ pkgs.hplip ];
+
+  # Enable Avahi for network printer discovery
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
 
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
