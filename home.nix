@@ -13,6 +13,7 @@
     ./yazi.nix
     ./starship.nix
     ./fish.nix
+    ./vis.nix
   ];
 
   home.packages = with pkgs; [
@@ -34,6 +35,11 @@
   home.file.".config/nvim/colors".source = ./vim/colors;
   home.file.".gvimrc".source = ./vim/.gvimrc;
   home.file.".vimrc".source = ./vim/.vimrc;
+
+  home.file.".config/vis" = {
+    source = ./vis;
+    recursive = true;
+  };
 
   home.file.".config/fastfetch".source = ./fastfetch;
   home.file.".config/kitty".source = ./kitty;
@@ -81,7 +87,11 @@
   programs.nvf = {
     enable = true;
     settings.vim = {
-      lsp.enable = true;
+      lsp = {
+        enable = true;
+        inlayHints.enable = true;
+        lspSignature.enable = true;
+      };
       treesitter.enable = true;
       autocomplete.nvim-cmp.enable = true;
 
@@ -124,6 +134,7 @@
       '';
     };
   };
+
   programs.tmux = {
     enable = true;
     extraConfig = ''
@@ -134,4 +145,10 @@
       set -g mouse on
     '';
   };
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
 }

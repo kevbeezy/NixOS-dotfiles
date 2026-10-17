@@ -6,7 +6,7 @@ let is_windows = has('win32') || has('win64') || has('win32unix')
  if has('win32') || has('win64')
      cd C:/Projects
  elseif has('unix') && !has('win32unix')
-     cd ~\projects
+     cd ~/projects
  endif
 
 " I would rather this go into the .gvimrc file, but that is loaded
