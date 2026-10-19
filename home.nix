@@ -14,6 +14,7 @@
     ./starship.nix
     ./fish.nix
     ./vis.nix
+    ./mango/mango.nix
   ];
 
   home.packages = with pkgs; [
@@ -25,6 +26,10 @@
     unzip
     nodejs
     clang-tools
+    docker
+    (writeShellScriptBin "code" ''
+      exec codium "$@"
+    '')
   ];
 
   home.stateVersion = "24.05";
@@ -47,6 +52,15 @@
   programs = {
     rclone.enable = true;
     mpv.enable = true;
+    ripgrep.enable = true;
+    bat.enable = true;
+  };
+
+  programs.kitty = {
+    enable = true;
+    settings = {
+      confirm_os_window_close = 0;
+    };
   };
 
   programs.git = {
@@ -150,5 +164,4 @@
     enable = true;
     nix-direnv.enable = true;
   };
-
 }

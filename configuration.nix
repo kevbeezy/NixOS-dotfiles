@@ -13,6 +13,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    inputs.mangowm.nixosModules.mango
   ];
 
   home-manager = {
@@ -34,6 +35,8 @@
     efiSupport = true;
     useOSProber = true;
   };
+
+  virtualisation.docker.enable = true;
 
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -103,6 +106,10 @@
 
   services.desktopManager.plasma6.enable = true;
 
+  programs.mango = {
+    enable = true;
+  };
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -149,6 +156,7 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "docker"
     ];
     shell = pkgs.fish;
     packages = with pkgs; [
@@ -176,7 +184,6 @@
     #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #  wget
     fastfetch
-    kitty
     stow
     yazi
     zoxide

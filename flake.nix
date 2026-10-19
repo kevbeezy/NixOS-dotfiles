@@ -25,6 +25,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     areofyl-fetch.url = "github:areofyl/fetch";
+    mangowm = {
+      url = "github:mangowm/mango";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    mangobar = {
+      url = "github:mangowm/mangobar";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -43,7 +51,13 @@
           ./hardware-configuration.nix
           home-manager.nixosModules.home-manager
           ./configuration.nix
-          { home-manager.sharedModules = [ inputs.nvf.homeManagerModules.default ]; }
+          {
+            home-manager.sharedModules = [
+              inputs.nvf.homeManagerModules.default
+              inputs.mangowm.hmModules.mango
+              inputs.mangobar.homeManagerModules.default
+            ];
+          }
         ];
       };
 
@@ -52,6 +66,8 @@
         modules = [
           ./home.nix
           inputs.nvf.homeManagerModules.default
+          inputs.mangowm.hmModules.mango
+          inputs.mangobar.homeManagerModules.default
         ];
       };
     };
