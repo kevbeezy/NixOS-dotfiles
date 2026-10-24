@@ -1,0 +1,22 @@
+ignore-empty-password
+font="MapleMono NF"
+image=~/Pictures/Wallpapers/wallpaper4.jpg
+scaling=fill
+key-hl-color=#98971a
+ring-color=#ebdbb2
+ring-ver-color=#ebdbb2
+text-color=#ebdbb2
+text-caps-lock-color=#d65d0e
+text-ver-color=#ebdbb2
+text-wrong-color=#cc241d
+inside-wrong-color=#d65d0eBF
+inside-ver-color=#282828BF
+inside-color=#282828BF
+indicator-radius=200
+indicator-thickness=20
+
+fade-in=.3
+indicator
+clock
+timestr=%I:%M%p
+effect-blur=20x6

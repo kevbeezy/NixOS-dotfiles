@@ -595,4 +595,4 @@ map <F4> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 "" Remove mouse pasting with middle mouse button
 "set mouse="" "this doesn't work
 "
-colorscheme noggyscheme
+colorscheme gruvbox

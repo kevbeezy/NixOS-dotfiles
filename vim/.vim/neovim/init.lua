@@ -2,7 +2,7 @@
 --THEME--
 ---------
 
-vim.cmd("colorscheme noggyscheme")
+vim.cmd("colorscheme gruvbox")
 
 --------------
 --TREESITTER--

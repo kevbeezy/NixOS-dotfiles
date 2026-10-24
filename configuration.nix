@@ -22,7 +22,7 @@
     extraSpecialArgs = { inherit inputs; };
     sharedModules = [ inputs.plasma-manager.homeModules.plasma-manager ];
     users.joachim = import ./home.nix;
-    backupFileExtension = "backup";
+    backupFileExtension = "bak";
   };
 
   # Bootloader.
@@ -37,6 +37,21 @@
   };
 
   virtualisation.docker.enable = true;
+
+  xdg.portal = {
+    enable = true;
+    wlr = {
+      enable = true;
+      settings = {
+        screencast = {
+          chooser_type = "simple";
+          chooser_cmd = "${pkgs.slurp}/bin/slurp -f %o -or";
+        };
+      };
+    };
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = "*";
+  };
 
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -102,7 +117,25 @@
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = false;
 
-  services.displayManager.plasma-login-manager.enable = true;
+  services.displayManager.plasma-login-manager = {
+    enable = false;
+    settings = {
+      Users = {
+        ReuseSession = true;
+      };
+    };
+  };
+
+  services.displayManager.ly = {
+    enable = true;
+    settings = {
+      save = true;
+      load = true;
+      animation = "doom";
+    };
+  };
+
+  services.displayManager.defaultSession = "mango";
 
   services.desktopManager.plasma6.enable = true;
 
@@ -133,6 +166,8 @@
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   security.polkit.enable = true;
+  security.pam.services.swaylock = { };
+  services.blueman.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -187,7 +222,9 @@
     stow
     yazi
     zoxide
-    starship
+    pavucontrol
+    bat
+    #starship
     kdePackages.yakuake
     vesktop
     neovide
@@ -196,6 +233,7 @@
     wl-clipboard
     dos2unix
     cmake
+    eza
     pkgs.nixfmt
     pkgs.nixd
     inputs.kwin-blur.packages.${pkgs.stdenv.hostPlatform.system}.default
@@ -205,6 +243,7 @@
   fonts.packages = with pkgs; [
     nerd-fonts.iosevka
     nerd-fonts.jetbrains-mono
+    maple-mono.NF-CN
   ];
 
   nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
@@ -249,7 +288,7 @@
     nixrebuild = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim";
     nixupgrade = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nix flake update --flake $HOME/.dotfiles && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim";
 
-    ls = "ls --color -AFhl $argv";
+    ls = "eza -algF --header --extended --octal-permissions --group-directories-first --time-style=long-iso --color=always --git --icons=always";
 
     # Editor commands
     nixconf = "nvim $HOME/.dotfiles/configuration.nix";
@@ -260,4 +299,5 @@
   environment.variables = {
     TERMINAL = "kitty";
   };
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
 }

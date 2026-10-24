@@ -1,4 +1,4 @@
-{ pkgs, inputs, ... }:
+{ pkgs, config, ... }:
 
 let
   mod1 = "SUPER";
@@ -6,296 +6,87 @@ let
   mod3 = "SUPER+CTRL";
   mod4 = "SUPER+CTRL+SHIFT";
 in
+
 {
+  imports = [
+    ./fuzzel.nix
+    ./mangobar.nix
+    ./wlogout.nix
+  ];
+
   home.packages = with pkgs; [
+    lm_sensors
+    brightnessctl
+    wlrctl
+    wlsunset
+    ncdu
+    bc
     wl-clipboard
     swaybg
     grim
     slurp
     satty
     wayfreeze
+    swaylock-effects
     jq
     libnotify
+    dunst
   ];
 
-  programs.fuzzel = {
+  xdg.configFile."swaylock".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/mango/swaylock";
+  xdg.configFile."dunst".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/mango/dunst";
+  home.file.".cache/bc_calc".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/mango/bc_calc";
+  xdg.configFile."wlogout/style.css".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/mango/wlogout/style.css";
+
+  programs.tofi.enable = true;
+
+  services.cliphist = {
     enable = true;
+    allowImages = true;
+    extraOptions = [
+      "-max-items"
+      "500"
+    ];
   };
 
-  programs.wlogout = {
+  services.swayidle = {
     enable = true;
+    timeouts = [
+      {
+        timeout = 300;
+        command = "$HOME/.config/mango/scripts/sleep_monitors.sh";
+        resumeCommand = "$HOME/.config/mango/scripts/wakeup_monitors.sh";
+      }
+      {
+        timeout = 600;
+        command = "${pkgs.swaylock-effects}/bin/swaylock -fF";
+      }
+      {
+        timeout = 1800;
+        command = "${pkgs.systemd}/bin/systemctl suspend";
+      }
+    ];
   };
-
-  services.dunst = {
-    enable = true;
-  };
-
-  services.mangobar = {
-    enable = true;
-    systemdTarget = "mango.target";
-    settings = {
-      modules-left = [
-        "workspaces"
-        "layout"
-        "window"
-      ];
-      modules-right = [
-        "hideclients"
-        "tray"
-        "network"
-        "cpu"
-        "memory"
-        "pulseaudio"
-        "backlight"
-        "battery"
-        "clock#date"
-        "clock#time"
-        "custom/power"
-      ];
-      workspaces = {
-        hide-empty = false;
-        overview-label = "OVERVIEW";
-        on-click = "activate";
-        on-click-right = "toggle";
-      };
-      layout = {
-        format = "{}";
-      };
-      window = {
-        format = "{}";
-        on-click = "bash ~/.config/mango/scripts/screenshot/copy-window.sh";
-      };
-      network = {
-        format = "{icon} {ifname}";
-        format-wifi = "{signal} {ssid}";
-        format-disconnected = "{icon}";
-        icon-wifi = "󰖩";
-        icon-ethernet = "󰈀";
-        icon-disconnected = "󰖪";
-        signal-icons = [
-          "󰤯"
-          "󰤟"
-          "󰤢"
-          "󰤥"
-          "󰤨"
-        ];
-        format-alt = "↓{down} ↑{up}";
-      };
-      hideclients = {
-        format = " {}";
-      };
-      cpu = {
-        format = " {load}%";
-      };
-      memory = {
-        format = " {}%";
-      };
-      backlight = {
-        format = "{icon} {percent}%";
-        icons = [
-          "󰃚"
-          "󰃛"
-          "󰃜"
-          "󰃝"
-          "󰃞"
-          "󰃟"
-        ];
-      };
-      pulseaudio = {
-        format = "{icon} {volume}% {bt}";
-        format-muted = "󰝟 {volume}% {bt}";
-        icons = [
-          "󰝟"
-          "󰕿"
-          "󰕾"
-        ];
-      };
-      battery = {
-        format = "{icon} {percent}% {ac}";
-        icons = [
-          "󰂎"
-          "󰁺"
-          "󰁻"
-          "󰁼"
-          "󰁽"
-          "󰁾"
-          "󰁿"
-          "󰂀"
-          "󰂁"
-          "󰂂"
-          "󰁹"
-        ];
-        icon-charging = "󰂄";
-        icon-full = "󰁹";
-        icon-ac = "";
-        hide-on-ac = true;
-      };
-      "clock#date" = {
-        format = " {:L%b %d · %A}";
-      };
-      "clock#time" = {
-        format = " {:L%I:%M %p}";
-      };
-      tray = {
-        icon-size = 25;
-        spacing = 10;
-      };
-      "custom/power" = {
-        format = "󰐥";
-        on-click = "wlogout";
-      };
-    };
-  };
-
-  xdg.configFile."mangobar/style.css".text = ''
-    * {
-        font-family: "JetBrainsMono Nerd Font", sans-serif;
-        font-size: 14px;
-    }
-    * {
-        color: #ebdbb2;
-        background-color: #504945;
-        padding: 0px 10px;
-        margin: 5px 1px;
-        border-radius: 100px;
-    }
-
-    #bar {
-        background: none;
-        margin: 5px 10px;
-    }
-    #bar.sel {
-        background: none;
-    }
-
-    #tags {
-        padding: 0px 13px;
-        margin: 0px 2px;
-    }
-
-    #tags.active {
-        background-color: #83a598;
-        color: #1b1a1a;
-    }
-    #tags.occupied {
-        background-color: #504945;
-        color: #ebdbb2;
-    }
-    #tags.urgent {
-        background-color: #fb4934;
-        color: #1b1a1a;
-    }
-    #tags.empty {
-        background-color: #201b14;
-        color: #ebdbb2;
-    }
-
-    /* Overview mode */
-    #overview {
-        background-color: #83a598;
-        color: #1b1a1a;
-    }
-
-    /* Layout symbol */
-    #layout {
-        background-color: #bd788a;
-        color: #111111;
-        min-width: 34px;
-        margin: 5px 5px;
-    }
-
-    /* Window title */
-    #title {
-        background-color: #bd788a;
-        color: #111111;
-    }
-
-    /* Right-side system modules */
-    #clock {
-        background-color: #c4b595;
-        color: #1b1a1a;
-    }
-    /* Date module (clock#date), separate from time */
-    #clock.date {
-        background-color: #b8bb26;
-        color: #1b1a1a;
-    }
-    #cpu {
-        padding: 0px 15px;
-        background-color: #c4b595;
-        color: #1b1a1a;
-    }
-    #mem {
-        background-color: #83a598;
-        color: #1b1a1a;
-    }
-    #brightness {
-        background-color: #d3869b;
-        color: #1b1a1a;
-    }
-    #volume {
-        background-color: #d19e27;
-        color: #1b1a1a;
-    }
-    #network {
-        background-color: #b8bb26;
-        color: #1b1a1a;
-    }
-    /* Network link states: swap the icon/colors per connection type. */
-    #network.wifi {
-        background-color: #83a598;
-        color: #1b1a1a;
-    }
-    #network.ethernet {
-        background-color: #b8bb26;
-        color: #1b1a1a;
-    }
-    #network.disconnected {
-        background-color: #fb4934;
-        color: #1b1a1a;
-    }
-    #keymode {
-        background-color: #83a598;
-        color: #1b1a1a;
-    }
-    #keyboardlayout {
-        background-color: #bd788a;
-        color: #1b1a1a;
-    }
-
-    /* Custom modules use #custom-<name> (e.g. custom/power -> #custom-power) */
-    #custom-power {
-        margin: 0px 5px;
-        background-color: #90AD9D;
-        color: #000000;
-    }
-
-    #tray {
-        background-color: #6B645A;
-        padding: 0px 15px;
-    }
-
-    menu {
-        background-color: #201B14;
-        border-color: #ebdbb2;
-        border-radius: 10px;
-        font-size: 14px;
-    }
-    menuitem {
-        color: #ebdbb2;
-    }
-    menuitem:hover {
-        color: #1b1a1a;
-        background-color: #b8bb26;
-    }
-  '';
 
   wayland.windowManager.mango = {
     enable = true;
     autostart_sh = ''
-      mangobar &
+      export XDG_SESSION_TYPE=wayland &
+      export XDG_CURRENT_DESKTOP=wlroots &
+      waybar &
       dunst &
-      swaybg -i ~/Pictures/Wallpapers/wallpaper4.jpg
+      swaybg -i ~/Pictures/Wallpapers/wallpaper4.jpg -m fill
+
+      systemctl --user import-environment PATH WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE &
+      dbus-update-activation-environment --systemd PATH WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE &
+
+      sleep 1
+      systemctl --user restart xdg-desktop-portal.service xdg-desktop-portal-wlr.service &
+
     '';
     settings = {
       repeat_rate = 25;
@@ -306,18 +97,47 @@ in
       tap_to_click = 1;
       tap_and_drag = 1;
       circle_layout = "grid,scroller,tile,monocle,dwindle";
+      global_color = "0xc66b25ff";
+      overlay_color = "0x282828ff";
+      monitor_rule = [
+        "make:Acer Technologies,model:Acer XFA240,width:1920,height:1080,refresh:144,x:0,y:20,primary:1"
+        "make:Ancor Communications Inc,model:PA246,width:1920,height:1200,refresh:60,x:1920,y:0"
+        "name:^eDP-1$,width:1920,height:1200,refresh:60,x:3840,y:0"
+      ];
+      window_rule = [
+        "force_fake_maximize:1,app_id:codium"
+        "is_floating:1, app_id:pavucontrol"
+        "is_floating:1, app_id:nmtui"
+        "is_floating:1, app_id:btop"
+        "is_floating:1, app_id:ncdu"
+        "is_floating:1, app_id:nix-search-tv"
+        "is_floating:1, app_id:blueman-manager"
+        "is_floating:1, app_id:mango-config-editor"
+      ];
       bind = [
         "${mod1}, r, reload_config"
-        "Alt, space, spawn, fuzzel"
+        "Alt, space, spawn, $HOME/.config/mango/scripts/launchers/applauncher.sh"
+        "${mod1}, v, spawn, $HOME/.config/mango/scripts/launchers/cliphist.sh"
+        "${mod1}, space, spawn, $HOME/.config/mango/scripts/launchers/hub.sh"
+        "${mod1}, slash, spawn, $HOME/.config/mango/scripts/launchers/show_binds.sh"
+        "${mod1}, comma, spawn, $HOME/.config/mango/scripts/launchers/notify_history.sh"
+        "${mod1}, c, spawn, $HOME/.config/mango/scripts/launchers/calc.sh"
         "${mod1}, Return, spawn, kitty"
+        "${mod1}, f, togglefloating"
+        "${mod2}, f, toggle_all_floating"
+        "${mod3}, n, spawn, kitty --class nix-search-tv -e $HOME/nixpkgs.sh"
+        "${mod1}, b, spawn, firefox"
         "${mod3}, w, killclient"
         "${mod2}, s, spawn, $HOME/.config/mango/scripts/screenshot/copy-region.sh"
         "${mod3}, s, spawn, $HOME/.config/mango/scripts/screenshot/copy-window.sh"
-        "${mod1}, n, switch_layout"
+        "${mod2}, n, spawn, $HOME/.config/mango/scripts/launchers/layout_switcher.sh"
+        "${mod1}, n, spawn, $HOME/.config/mango/scripts/launchers/notes.sh"
         "${mod1}, h, focusdir, left"
         "${mod1}, j, focusdir, down"
         "${mod1}, k, focusdir, up"
         "${mod1}, l, focusdir, right"
+        "${mod1}, bracketleft, focusmon, left"
+        "${mod1}, bracketright, focusmon, right"
         "${mod2}, h, move_client, left"
         "${mod2}, j, move_client, down"
         "${mod2}, k, move_client, up"
@@ -344,6 +164,14 @@ in
         "${mod2}, 7, tag, 7"
         "${mod2}, 8, tag, 8"
         "${mod2}, 9, tag, 9"
+        "${mod3}, 1, tagmon, model:Acer XFA240"
+        "${mod3}, 2, tagmon, model:PA246"
+        "${mod3}, 3, tagmon, eDP-1"
+        "${mod4}, p, spawn, wlogout"
+      ];
+      mousebind = [
+        "${mod1}, btn_left, moveresize, curmove"
+        "${mod1}, btn_right, moveresize, curresize"
       ];
     };
   };
@@ -355,13 +183,14 @@ in
       set -euo pipefail
       p=$(mktemp -u).fifo; mkfifo "$p"
       wayfreeze --after-freeze-timeout 100 --after-freeze-cmd "echo > $p" & wp=$!
+      trap 'kill "$wp" 2>/dev/null || true; rm -f "$p"' EXIT
       read -r < "$p"
-      g=$(slurp -d)
-      if [ -z "$g" ]; then 
-        kill "$wp" 2>/dev/null; rm -f "$p"; exit 1
+      g=$(slurp -d || true)
+      if [ -z "$g" ]; then
+        exit 1
       fi
       grim -g "$g" - | wl-copy
-      kill "$wp" 2>/dev/null; rm -f "$p"
+      kill "$wp" 2>/dev/null || true; rm -f "$p"
       notify-send "Screenshot Copied" "Selected region saved to clipboard." -t 2000
     '';
   };
@@ -381,6 +210,25 @@ in
       grim -g "$g" - | wl-copy
       kill "$wp" 2>/dev/null; rm -f "$p"
       notify-send "Screenshot Copied" "Active window saved to clipboard." -t 2000
+    '';
+  };
+  xdg.configFile."mango/scripts/sleep_monitors.sh" = {
+    executable = true;
+    text = ''
+      #!/usr/bin/env bash
+      for m in $(wlr-randr | grep -v '^[[:space:]]' | awk '{print $1}'); do
+          mmsg dispatch sleep_monitor,$m
+      done
+    '';
+  };
+
+  xdg.configFile."mango/scripts/wakeup_monitors.sh" = {
+    executable = true;
+    text = ''
+      #!/usr/bin/env bash
+      for m in $(wlr-randr | grep -v '^[[:space:]]' | awk '{print $1}'); do
+          mmsg dispatch wakeup_monitor,$m
+      done
     '';
   };
 }
