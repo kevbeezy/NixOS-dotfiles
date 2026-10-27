@@ -1,20 +1,42 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 {
   config,
   pkgs,
   inputs,
+  lib,
   ...
 }:
 
+let
+  toggleFile = /home/joachim/.nixos-toggles.json;
+  defaultToggles = {
+    nvidia = false;
+    tools = true;
+    arduino = false;
+    game = false;
+    mango = true;
+    plasma = false;
+  };
+  toggles =
+    if builtins.pathExists toggleFile then
+      builtins.fromJSON (builtins.readFile toggleFile)
+    else
+      defaultToggles;
+in
+
 {
   imports = [
-    # Include the results of the hardware scan.
-    ./hardware-configuration.nix
+    /etc/nixos/hardware-configuration.nix
     inputs.mangowm.nixosModules.mango
-  ];
+  ]
+  ++ lib.optional toggles.arduino ./arduino-dev.nix
+  ++ lib.optional toggles.game ./game.nix;
+  programs.mango.enable = lib.mkIf toggles.mango true;
+  services.desktopManager.plasma6.enable = lib.mkIf toggles.plasma true;
+  services.xserver.videoDrivers = if toggles.nvidia then [ "nvidia" ] else [ "amdgpu" ];
+  hardware.nvidia = lib.mkIf toggles.nvidia {
+    modesetting.enable = true;
+    open = false;
+  };
 
   home-manager = {
     useGlobalPkgs = true;
@@ -25,13 +47,12 @@
     backupFileExtension = "bak";
   };
 
-  # Bootloader.
   boot.loader.systemd-boot.enable = false;
   boot.loader.efi.canTouchEfiVariables = true;
 
   boot.loader.grub = {
     enable = true;
-    device = "nodev"; # Required for EFI systems
+    device = "nodev";
     efiSupport = true;
     useOSProber = true;
   };
@@ -53,10 +74,8 @@
     config.common.default = "*";
   };
 
-  # Use latest kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.lib.mkDefault pkgs.linuxPackages_latest;
 
-  # Enable Plymouth boot splash
   boot.plymouth = {
     enable = true;
     theme = "breeze";
@@ -67,9 +86,7 @@
     "flakes"
   ];
 
-  # Silent Boot parameters to hide the text scroll
   boot.consoleLogLevel = 0;
-  boot.initrd.verbose = false;
   boot.kernelParams = [
     "quiet"
     "splash"
@@ -80,14 +97,7 @@
     "udev.log_priority=3"
     "usbcore.autosuspend=-1"
   ];
-  networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Enable networking
+  networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
   # Set your time zone.
@@ -95,7 +105,6 @@
 
   hardware.bluetooth.enable = true;
 
-  # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
 
   i18n.extraLocaleSettings = {
@@ -110,11 +119,8 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  # Enable the X11 windowing system.
-  # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
 
-  # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = false;
 
   services.displayManager.plasma-login-manager = {
@@ -137,32 +143,19 @@
 
   services.displayManager.defaultSession = "mango";
 
-  services.desktopManager.plasma6.enable = true;
-
-  programs.mango = {
-    enable = true;
-  };
-
-  # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
     variant = "";
   };
 
-  # Enable CUPS to print documents.
   services.printing.enable = true;
-
-  # Add HP drivers
   services.printing.drivers = [ pkgs.hplip ];
-
-  # Enable Avahi for network printer discovery
   services.avahi = {
     enable = true;
     nssmdns4 = true;
     openFirewall = true;
   };
 
-  # Enable sound with pipewire.
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   security.polkit.enable = true;
@@ -173,18 +166,8 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users."joachim" = {
     isNormalUser = true;
     description = "Joachim";
@@ -196,11 +179,9 @@
     shell = pkgs.fish;
     packages = with pkgs; [
       kdePackages.kate
-      #  thunderbird
     ];
   };
 
-  # Install firefox.
   programs.firefox.enable = true;
   programs.fish.enable = true;
 
@@ -209,30 +190,22 @@
     openFirewall = true;
   };
 
-  # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-
   environment.systemPackages = with pkgs; [
-    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    #  wget
+    jq
+    wget
     fastfetch
     stow
     yazi
     zoxide
     pavucontrol
     bat
-    #starship
     kdePackages.yakuake
     vesktop
     neovide
-    vscodium
     pear-desktop
     wl-clipboard
-    dos2unix
-    cmake
     eza
     pkgs.nixfmt
     pkgs.nixd
@@ -247,34 +220,10 @@
   ];
 
   nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
   networking.firewall = {
     allowedTCPPorts = [ 53317 ];
     allowedUDPPorts = [ 53317 ];
-    # Or disable the firewall altogether.
-    # networking.firewall.enable = false;
   };
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "26.05"; # Did you read the comment?
 
   programs.neovim = {
@@ -283,14 +232,12 @@
   };
 
   environment.shellAliases = {
-    # System commands
-    nixupdate = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nix flake update --flake $HOME/.dotfiles";
-    nixrebuild = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim";
-    nixupgrade = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nix flake update --flake $HOME/.dotfiles && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim";
+    nixupdate = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nix flake update --flake $HOME/.dotfiles --impure";
+    nixrebuild = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim --impure";
+    nixupgrade = "find $HOME/.dotfiles -name \"*.nix\" -exec nixfmt {} + && sudo nix flake update --flake $HOME/.dotfiles && sudo nixos-rebuild switch --flake $HOME/.dotfiles#joachim --impure";
 
     ls = "eza -algF --header --extended --octal-permissions --group-directories-first --time-style=long-iso --color=always --git --icons=always";
 
-    # Editor commands
     nixconf = "nvim $HOME/.dotfiles/configuration.nix";
     nixflake = "nvim $HOME/.dotfiles/flake.nix";
     nixhome = "nvim $HOME/.dotfiles/home.nix";
@@ -300,4 +247,9 @@
     TERMINAL = "kitty";
   };
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
 }

@@ -2,35 +2,44 @@
   inputs,
   config,
   pkgs,
+  lib,
   ...
 }:
+
+let
+  toggleFile = /home/joachim/.nixos-toggles.json;
+  defaultToggles = {
+    tools = true;
+    arduino = false;
+    game = false;
+    mango = true;
+    plasma = false;
+  };
+  toggles =
+    if builtins.pathExists toggleFile then
+      builtins.fromJSON (builtins.readFile toggleFile)
+    else
+      defaultToggles;
+in
 
 {
   imports = [
     inputs.areofyl-fetch.homeManagerModules.default
-    ./plasma.nix
     ./rclone.nix
     ./yazi.nix
-    ./starship.nix
     ./fish.nix
     ./vis.nix
-    ./mango/mango.nix
-  ];
+  ]
+  ++ lib.optional toggles.tools ./tools.nix
+  ++ lib.optional toggles.mango ./mango/mango.nix
+  ++ lib.optional toggles.plasma ./plasma.nix;
 
   home.packages = with pkgs; [
     kitty
     libreoffice
     vim-full
-    clang
-    gnumake
     curl
     unzip
-    nodejs
-    clang-tools
-    docker
-    (writeShellScriptBin "code" ''
-      exec codium "$@"
-    '')
   ];
 
   home.stateVersion = "24.05";
@@ -54,6 +63,17 @@
     source = ./vis;
     recursive = true;
   };
+
+  home.pointerCursor = {
+    enable = true;
+    package = pkgs.nordzy-cursor-theme;
+    name = "Nordzy-cursors";
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
+  };
+
+  gtk.enable = true;
 
   programs = {
     rclone.enable = true;
@@ -172,22 +192,6 @@
                     )
       '';
     };
-  };
-
-  programs.tmux = {
-    enable = true;
-    extraConfig = ''
-      bind -n M-h select-pane -L
-      bind -n M-l select-pane -R
-      bind -n M-k select-pane -U
-      bind -n M-j select-pane -D
-      set -g mouse on
-    '';
-  };
-
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
   };
 
   programs.nix-search-tv = {

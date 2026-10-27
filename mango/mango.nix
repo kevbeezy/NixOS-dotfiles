@@ -21,6 +21,7 @@ in
     wlsunset
     ncdu
     bc
+    btop
     wl-clipboard
     swaybg
     grim
@@ -28,7 +29,6 @@ in
     satty
     wayfreeze
     swaylock-effects
-    jq
     libnotify
     dunst
   ];
@@ -113,12 +113,18 @@ in
         "is_floating:1, app_id:nix-search-tv"
         "is_floating:1, app_id:blueman-manager"
         "is_floating:1, app_id:mango-config-editor"
+        "is_floating:1, app_id:steam,title:Friends List"
+        "is_floating:1, app_id:steam,title:Steam Settings"
+        "is_floating:1, app_id:org.prismlauncher.PrismLauncher"
       ];
       bind = [
         "${mod1}, r, reload_config"
         "Alt, space, spawn, $HOME/.config/mango/scripts/launchers/applauncher.sh"
+        "Alt, tab, switcher, next"
+        "Alt+Shift, tab, switcher, prev"
         "${mod1}, v, spawn, $HOME/.config/mango/scripts/launchers/cliphist.sh"
         "${mod1}, space, spawn, $HOME/.config/mango/scripts/launchers/hub.sh"
+        "${mod1}, q, spawn, $HOME/.config/mango/scripts/launchers/search.sh"
         "${mod1}, slash, spawn, $HOME/.config/mango/scripts/launchers/show_binds.sh"
         "${mod1}, comma, spawn, $HOME/.config/mango/scripts/launchers/notify_history.sh"
         "${mod1}, c, spawn, $HOME/.config/mango/scripts/launchers/calc.sh"

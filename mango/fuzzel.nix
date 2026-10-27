@@ -27,7 +27,7 @@
   xdg.configFile."mango/scripts/launchers/cliphist.sh" = {
     executable = true;
     text = ''
-      cliphist list | fuzzel --dmenu --anchor bottom --width=100 --border-radius=0 | cliphist decode | wl-copy
+      cliphist list | fuzzel --dmenu --anchor bottom --width=100 --prompt="󰅍 Clipbard: " --border-radius=0 | cliphist decode | wl-copy
     '';
   };
 
@@ -57,8 +57,9 @@
       tofi-drun \
         --drun-launch true \
         --horizontal true \
-        --num-results 1 \
-        --min-input-width 1700 \
+        --fuzzy-match true \
+        --num-results 6 \
+        --min-input-width 1000 \
         --placeholder-text "$(printf '%.0s.' {1..250})" \
         --placeholder-color "#00000000" \
         --result-spacing 20 \
@@ -76,9 +77,9 @@
         --text-color "#ebdbb2" \
         --prompt-color "#ebdbb2" \
         --input-color "#ebdbb2" \
-        --prompt-text "> " \
+        --prompt-text "Apps: " \
         --selection-color "#ebdbb2" \
-        --selection-background "#282828" \
+        --selection-background "#ebdbb233" \
         --selection-match-color "#b8bb26" \
         --border-width 2 \
         --border-color "#83a598ff" \
@@ -86,7 +87,7 @@
         --outline-color "#83a598ff" \
         --font "JetBrainsMono Nerd Font" \
         --font-size 12 \
-        --require-match false
+        --require-match false \
     '';
   };
 
@@ -227,7 +228,7 @@
           esac
           options="$options$proper_name\n"
       done
-      selection=$(echo -e "$options" | sed '/^$/d' | sort | fuzzel --dmenu -p "  Hub: " -l 10)
+      selection=$(echo -e "$options" | sed '/^$/d' | sort | fuzzel --anchor top --width=70 --dmenu -l 10)
       if [ -z "$selection" ]; then
           exit 0
       fi

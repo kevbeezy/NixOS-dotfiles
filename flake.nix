@@ -52,7 +52,6 @@
         # This passes your inputs into your configuration.nix
         specialArgs = { inherit inputs; };
         modules = [
-          ./hardware-configuration.nix
           home-manager.nixosModules.home-manager
           ./configuration.nix
           {

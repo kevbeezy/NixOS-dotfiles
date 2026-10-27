@@ -3,7 +3,12 @@
 {
   programs.waybar = {
     enable = true;
-    package = inputs.waybar.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    package =
+      inputs.waybar.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs
+        (oldAttrs: {
+          doCheck = false;
+          mesonFlags = (oldAttrs.mesonFlags or [ ]) ++ [ "-Dtests=disabled" ];
+        });
     systemd = {
       enable = true;
       targets = [ "mango.target" ];
@@ -100,6 +105,7 @@
           '';
           return-type = "json";
           interval = 2;
+          on-click = "kitty --class btop -e btop";
         };
 
         memory = {
